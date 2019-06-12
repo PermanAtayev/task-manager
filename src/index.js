@@ -8,73 +8,82 @@ const Task = require('./models/task');
 
 app.use(express.json());
 
-app.post( "/users", (req, res) => {
+app.post( "/users", async (req, res) => {
     const user = new User( req.body );
 
-    user.save().then(( result ) => {
+    try{
+        await user.save();
         console.log( user );
         return res.status(200).send( "User is created" );
-    })
-    .catch( (error) =>{
+    }
+    catch(error){
         console.log( error );
         return res.status(406).send( "User is not created" );
-    })
+    }
 })
 
-app.get( "/users", (req, res) => {
-    User.find({}).then((users) => {
+app.get( "/users", async (req, res) => {
+
+    try{
+        const users = await User.find({});
         return res.status(200).send( users );
-    }).catch((e) => {
+    }
+    catch( e ){
         return res.status(500).send("No users");
-    })
-})
+    }
 
-app.get( "/users/:id", (req, res) => {
+ })
+
+app.get( "/users/:id", async (req, res) => {
     const _id = req.params.id;
 
-    User.findById(_id).then((user) => {
+    try{
+        const user = await User.findById( _id );
         if( user )
             return res.send(user);
-
-        return res.status(404).send("User was not found");
-    })
-    .catch((e) => {
-        return res.status(500).send("Something went wrong");
-    })
+        return res.status(404).send( "User does not exist" );
+    }
+    catch( error ){
+        return res.status(500).send( "Error with the server" );
+    }
 })
 
-app.post("/tasks", (req, res) => {
+app.post("/tasks", async (req, res) => {
     const task = new Task( req.body );
 
-    task.save().then((success)=>{
+    try{
+        await task.save();
         console.log( task );
         return res.status(200).send( "Task is created" );
-    })
-    .catch((error) => {
+    }
+    catch(error){
         console.log( error );
         return res.status(406).send( "Task is not created" );
-    })
+    }
 })
 
-app.get("/tasks", (req, res) => {
-    Task.find({}).then((tasks) => {
+app.get("/tasks", async (req, res) => {
+    try{
+        const tasks = await Task.find({});
         return res.status(200).send( tasks );
-    })
-    .catch( (e) => {
+    }
+    catch( error ){
         return res.status(500).send( "An error occured" );
-    })
+    }
 })
 
-app.get("/tasks/:id", (req, res) => {
+app.get("/tasks/:id", async (req, res) => {
     const _id = req.params.id;
-    Task.findById(_id).then((task) => {
+    try{
+        const task = await Task.findById( _id ); // this is a promise, without await I can't just take it
         if( task )
             return res.status(201).send(task);
         return res.status(404).send("Could not find a task");
-    })
-    .catch((e) => {
-        return res.status(500).send("Server error");
-    })
+    }
+    catch(error){
+        return res.status(500).send(error);
+    }
+
 })
 
 app.listen( port, () => {
