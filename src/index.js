@@ -49,6 +49,9 @@ app.get( "/users/:id", async (req, res) => {
 })
 
 app.patch( "/users/:id", async (req, res) =>{
+    // const updates = Object.keys( req. );
+    const allowedUpdates = [ 'name', 'email', 'password', 'age' ];
+
     try{
         const user = await User.findByIdAndUpdate( req.params.id, {new:true, setDefaultsOnInsert: true, findAndModify: true, runValidators: true} );
 
