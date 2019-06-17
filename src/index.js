@@ -49,21 +49,44 @@ app.get( "/users/:id", async (req, res) => {
 })
 
 app.patch( "/users/:id", async (req, res) =>{
-    // const updates = Object.keys( req. );
+    const updates = Object.keys( req.body );
     const allowedUpdates = [ 'name', 'email', 'password', 'age' ];
 
+    const isValidOperation = updates.every((update) => allowedUpdates.includes( update ));
+
+    if( !isValidOperation ){
+        return res.status(400).send("Invalid update");
+    }
+
     try{
-        const user = await User.findByIdAndUpdate( req.params.id, {new:true, setDefaultsOnInsert: true, findAndModify: true, runValidators: true} );
+        // console.log( req );
+        const user = await User.findByIdAndUpdate( req.params.id, req.body, {new:true, setDefaultsOnInsert: true, runValidators: true} );
 
         if( user )
-            return res.status(200).send(user);
+            return res.status(200).send(user);  
         
         return res.status(404).send('User was not found');
     }
     catch( error ){
         res.status(400).send(error);
     }
+})
 
+app.delete("users/:id", async ( req, res ) => {
+    const _id = req.params.id;
+
+    try{
+        const user = await User.findByIdAndDelete( _id );
+
+        if( !user ){
+            return res.status(404).send( 'User was not found' );
+        }
+        return res.status(200).send(user);
+    }
+    catch(e){
+        console.log( e );
+        return res.status(500).send(e);
+    }
 })
 
 app.post("/tasks", async (req, res) => {
@@ -102,6 +125,35 @@ app.get("/tasks/:id", async (req, res) => {
         return res.status(500).send(error);
     }
 
+})
+
+app.patch( "/tasks/:id", async (req, res) => {
+    const _id = req.params.id;
+    const updates = Object.keys( req.body );
+    const allowedUpdates = [ "completed", "description" ];
+
+    let isValidOperation = true;
+
+    updates.forEach( (update) => {
+        if( !allowedUpdates.includes( update ))
+            isValidOperation = false;
+    })
+
+    if( !isValidOperation ){
+        res.status(200).send( "Invalid update" );
+    }
+
+    try{
+        const task = await Task.findByIdAndUpdate( _id, req.body, {new :true, runValidators:true, setDefaultsOnInsert: true, } );
+
+        if( task ){
+            return res.status(200).send( task );
+        }
+        return res.status(404).send("Task was not found");
+    }
+    catch( e ){
+        return res.status(400).send(e);
+    }
 })
 
 app.listen( port, () => {
