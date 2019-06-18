@@ -39,8 +39,13 @@ router.patch( "/users/:id", async (req, res) =>{
     }
 
     try{
-        // console.log( req );
-        const user = await User.findByIdAndUpdate( req.params.id, req.body, {new:true, setDefaultsOnInsert: true, runValidators: true} );
+        const user = await User.findById( req.params.id, req.body );
+
+        updates.forEach( (update) => {
+            user[update] = req.body[update];
+        })
+
+        user.save();
 
         if( user )
             return res.status(200).send(user);  
@@ -48,6 +53,7 @@ router.patch( "/users/:id", async (req, res) =>{
         return res.status(404).send('User was not found');
     }
     catch( error ){
+        // console.error(error);
         res.status(400).send(error);
     }
 })
@@ -74,7 +80,7 @@ router.post( "/users", async (req, res) => {
 
     try{
         await user.save();
-        console.log( user );
+        // console.log( user );
         return res.status(200).send( "User is created" );
     }
     catch(error){
