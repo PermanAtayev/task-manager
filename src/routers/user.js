@@ -3,7 +3,6 @@ const router = new express.Router();
 const User = require('../models/user');
 
 router.get( "/users", async (req, res) => {
-
     try{
         const users = await User.find({});
         return res.status(200).send( users );
@@ -13,6 +12,35 @@ router.get( "/users", async (req, res) => {
     }
 
  })
+
+// sign-up
+ router.post( "/users", async (req, res) => {
+    const user = new User( req.body );
+
+    try{
+        await user.save();
+        const token = await user.generateAuthToken();
+
+        return res.status(201).send( {user, token} );
+    }
+    catch(error){
+        return res.status(406).send( error );
+    }
+})
+
+// log-in
+ router.post( "/users/login", async(req, res) => {
+    try{
+        const user = await User.findByCredentials( req.body.email, req.body.password );
+        const token = await user.generateAuthToken();
+
+        res.send( user );
+    }
+    catch( e ){
+        res.status(400).send(e + "");
+    }
+ });
+
 
 router.get( "/users/:id", async (req, res) => {
     const _id = req.params.id;
@@ -45,7 +73,7 @@ router.patch( "/users/:id", async (req, res) =>{
             user[update] = req.body[update];
         })
 
-        user.save();
+        await user.save();
 
         if( user )
             return res.status(200).send(user);  
@@ -53,7 +81,6 @@ router.patch( "/users/:id", async (req, res) =>{
         return res.status(404).send('User was not found');
     }
     catch( error ){
-        // console.error(error);
         res.status(400).send(error);
     }
 })
@@ -75,18 +102,5 @@ router.delete("/users/:id", async ( req, res ) => {
     }
 })
 
-router.post( "/users", async (req, res) => {
-    const user = new User( req.body );
-
-    try{
-        await user.save();
-        // console.log( user );
-        return res.status(200).send( "User is created" );
-    }
-    catch(error){
-        console.log( error );
-        return res.status(406).send( "User is not created" );
-    }
-})
 
 module.exports = router;

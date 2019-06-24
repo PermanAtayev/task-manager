@@ -2,16 +2,17 @@ const mongoose = require('mongoose');
 const url = "mongodb://127.0.0.1:27017/task-manager-api";
 const validator = require('validator');
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 mongoose.connect(url, { useNewUrlParser: true });
 
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
         trim: true
     },
     email: {
+        unique: true,
         type: String,
         required: true,
         validate(value) {
@@ -39,18 +40,53 @@ const userSchema = new mongoose.Schema({
                 throw new Error("You can't choose password for \"password\"");
         },
         required: true
-    }
+    },
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 }
 );
+
+// now we can use this directly from the model, User.find...
+
+userSchema.methods.generateAuthToken = async function(){
+    const user = this;
+    const token = jwt.sign({_id : user._id.toString()}, 'thisismynewcourse');
+
+    user.tokens = user.tokens.concat({ token });
+    // needs to be saved, because we actually update something in the user.tokens array
+    await user.save();
+
+    return token;
+}
+
+userSchema.statics.findByCredentials = async(email, password) => {
+    const user = await User.findOne( { email });
+
+    if( !user ){
+        throw new Error( 'Unable to login' );
+    }
+
+    const isMatch = await bcrypt.compare( password, user.password );
+
+    if( !isMatch ){
+        throw new Error( "Unable to login" );
+    }
+
+    return user;
+}
+
+// hash the plain text password before saving
 
 userSchema.pre("save", async function(next){
     // console.log( this );
     const user = this;
 
     if(user.isModified('password')){
-        console.log("Something was modified");
         user.password = await bcrypt.hash(user.password, 8);
-        console.log( user.password );
     }
 
     // important, because pre is a middleware that needs to point to the function that will be executed next
