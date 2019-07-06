@@ -1,49 +1,41 @@
 require('./db/mongoose');
 
+const auth = require('./middleware/auth');
 const express = require('express');
 const app = express();
 const port = process.env.port || 3000;
 
 const UserRouter = require("./routers/user");
 const TaskRouter = require("./routers/task");
+const jwt = require( "jsonwebtoken" ); 
 
 // middleware for the route handler
-app.use( (req, res, next) => {
-    res.status(503).send( "Server is on maintenance" );
-})
 
-
-// app.use( (req, res, next) => {
-//     // console.log( req.method, req.path );
-
-//     if( req.method === "GET" ){
-//         res.send( "GET requests are disabled" );
-//     }
-//     else{
-//         next();
-//     }
-// })
+app.use((req, res, next) => {
+    // console.log( req.method, req.path );
+    next();
+});
 
 app.use(express.json());
 app.use(UserRouter);
 app.use(TaskRouter);
 
 
-
-
 app.listen( port, () => {
     console.log("Listening on port - ", port);
 });
 
-const jwt = require( "jsonwebtoken" );
+const Task = require("./models/task");
+const User = require("./models/user");
 
-const myFunction = async () => {
-    const token = jwt.sign( {_id: '5d10b64c2bd85b318cd9a05f'}, 'thisismynewcourse', {expiresIn: "1h"} );
-    // console.log( token );
+const main = async() => {
+    // const task = await Task.findById("5d1f508c497c253e58ecb3a8");
+    // await task.populate('owner').execPopulate();
+    // console.log(task.owner);
 
-    const data = jwt.verify( token, 'thisismynewcourse' );
-
-    // console.log( data );
+    const user = await User.findById("5d1f4f7797b41a32d42171d1");
+    await user.populate("tasks").execPopulate();    
+    // console.log(user.tasks);
 }
 
-myFunction()
+main();

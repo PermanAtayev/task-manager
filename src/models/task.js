@@ -7,11 +7,17 @@ const taskSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
-        trim: true
+        trim: true 
     },
     completed: {
         type: Boolean,
         default: false
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        // to create the relationship between the user and the task
+        ref: 'User'
     }
 })
 
@@ -25,7 +31,3 @@ const Task = mongoose.model("Task", taskSchema );
 
 
 module.exports = Task;
-// {
-// 	"description": "Launching a web server",
-// 	"completed" : false
-// }

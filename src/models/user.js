@@ -3,6 +3,7 @@ const url = "mongodb://127.0.0.1:27017/task-manager-api";
 const validator = require('validator');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Task = require("./task");
 
 mongoose.connect(url, { useNewUrlParser: true });
 
@@ -47,14 +48,22 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }]
-}
-);
+});
+// not stored in a database
+userSchema.virtual("tasks", {
+    ref: "Task",
+    localField: "_id",
+    foreignField: "owner"
+})
 
 // now we can use this directly from the model, User.find...
 
-userSchema.methods.generateAuthToken = async function(){
+userSchema.methods.generateAuthToken = async function () {
     const user = this;
-    const token = jwt.sign({_id : user._id.toString()}, 'thisismynewcourse');
+    const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse');
+
+    if (user.tokens === null)
+        user.tokens = [];
 
     user.tokens = user.tokens.concat({ token });
     // needs to be saved, because we actually update something in the user.tokens array
@@ -63,33 +72,49 @@ userSchema.methods.generateAuthToken = async function(){
     return token;
 }
 
-userSchema.statics.findByCredentials = async(email, password) => {
-    const user = await User.findOne( { email });
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({ email });
 
-    if( !user ){
-        throw new Error( 'Unable to login' );
+    if (!user) {
+        throw new Error('Unable to login');
     }
 
-    const isMatch = await bcrypt.compare( password, user.password );
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    if( !isMatch ){
-        throw new Error( "Unable to login" );
+    if (!isMatch) {
+        throw new Error("Unable to login, Password is wrong");
     }
 
     return user;
 }
 
+userSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
+
+    delete userObject.password;
+    delete userObject.tokens;
+
+    return userObject;
+}
+
 // hash the plain text password before saving
 
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function (next) {
     // console.log( this );
     const user = this;
 
-    if(user.isModified('password')){
+    if (user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8);
     }
 
     // important, because pre is a middleware that needs to point to the function that will be executed next
+    next();
+});
+
+userSchema.pre("remove", async function(next){
+    const user = this;
+    await Task.deleteMany({owner: user._id});
     next();
 });
 
