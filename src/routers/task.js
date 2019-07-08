@@ -13,17 +13,41 @@ router.post("/tasks", auth, async (req, res) => {
     try {
         await task.save();
         console.log(task);
-        return res.status(200).send("Task is created");
+        return res.status(200).send(task);
     }
     catch (error) {
         return res.status(406).send("Task is not created because: " + error);
     }
 })
 
+// GET /tasks?completed=true
+// GET /tasks?limit=10&skip=0
+// GET /tasks?createdAt:asc
+// GET /tasks?sortBy=createdAt:asc
 router.get("/tasks", auth, async (req, res) => {
+    const match = {};
+    const sort = {};
+
+    if(req.query.completed){
+        match.completed = JSON.parse(req.query.completed);
+    }
+
+    if(req.query.sortBy){
+        const parts = req.query.sortBy.split(":");
+        sort[parts[0]] = (parts[1]==="asc") ? 1 : -1;
+    }
+
     try {
         // const tasks = await Task.find({owner : req.user._id});
-        await req.user.populate('tasks').execPopulate();
+        await req.user.populate({
+            path: 'tasks',
+            match,
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip),
+                sort
+            }
+        }).execPopulate();
         return res.status(200).send(req.user.tasks);
     }
     catch (error) {

@@ -47,8 +47,11 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }]
-});
+    }],
+},
+    {
+        timestamps: true
+    });
 // not stored in a database
 userSchema.virtual("tasks", {
     ref: "Task",
@@ -112,9 +115,9 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-userSchema.pre("remove", async function(next){
+userSchema.pre("remove", async function (next) {
     const user = this;
-    await Task.deleteMany({owner: user._id});
+    await Task.deleteMany({ owner: user._id });
     next();
 });
 

@@ -7,7 +7,7 @@ const taskSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
-        trim: true 
+        trim: true
     },
     completed: {
         type: Boolean,
@@ -19,15 +19,18 @@ const taskSchema = new mongoose.Schema({
         // to create the relationship between the user and the task
         ref: 'User'
     }
-})
+},
+    {
+        timestamps: true
+    })
 
-taskSchema.pre( "save", async function(next){
+taskSchema.pre("save", async function (next) {
     const task = this;
-    console.log( "Task is being modified" );
+    console.log("Task is being modified");
     next();
 })
 
-const Task = mongoose.model("Task", taskSchema );
+const Task = mongoose.model("Task", taskSchema);
 
 
 module.exports = Task;
