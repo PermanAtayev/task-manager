@@ -26,7 +26,7 @@ const taskSchema = new mongoose.Schema({
 
 taskSchema.pre("save", async function (next) {
     const task = this;
-    console.log("Task is being modified");
+    // console.log("Task is being modified");
     next();
 })
 
