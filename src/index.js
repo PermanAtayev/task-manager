@@ -10,7 +10,7 @@ const TaskRouter = require("./routers/task");
 
 app.use(express.json());
 
-app.get("/", async(req, res) => {
+app.get("/", (req, res) => {
     return res.send("Welcome to the task-manager api, for the documentation how to use it go to: https://github.com/PermanAtayev/task-manager");
 })
 
@@ -18,6 +18,6 @@ app.use(UserRouter);
 app.use(TaskRouter);
 
 
-app.listen( port, () => {
+app.listen(port, () => {
     console.log("Listening on port -", port);
 });
