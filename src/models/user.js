@@ -7,6 +7,7 @@ const Task = require("./task");
 
 mongoose.connect(url, { useNewUrlParser: true });
 
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
