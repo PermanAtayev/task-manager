@@ -12,8 +12,7 @@ router.post("/tasks", auth, async (req, res) => {
 
     try {
         await task.save();
-        console.log(task);
-        return res.status(200).send(task);
+        return res.status(201).send(task);
     }
     catch (error) {
         return res.status(406).send("Task is not created because: " + error);
@@ -121,7 +120,7 @@ router.delete("/tasks/:id", auth, async (req, res) => {
         res.status(200).send(task);
     }
     catch (e) {
-        res.status(500).send(e + "");
+        res.status(500);
     }
 });
 
