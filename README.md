@@ -1,6 +1,17 @@
 # task-manager
 The task-manager api is deployed at https://perman-task-manager.herokuapp.com/
 
+## Build
+First of all, initialise the npm and install all of the api's dependencies.
+Then, to build the application on your machine you can either use a developer mode:
+```
+npm run dev
+```
+or a usual mode:
+```
+npm start
+```
+
 ## User related requests
 
 Only for the sign-up and log-in you don't need to be authenticated, for all other requests authentication is a requirement.
@@ -85,3 +96,25 @@ To delete a task request
 DELETE /tasks/:id
 ```
 where :id is an id of the task
+
+## Task related requests
+To test the api enter this command:
+```
+npm test
+```
+
+## Third-party libraries:
+Following is a list of third-party libraries used in building this web service:
+- [express](https://www.npmjs.com/package/express)
+- [sendgrid](https://www.npmjs.com/package/sendgrid)
+- [bcryptjs](https://www.npmjs.com/package/bcryptjs)
+- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+- [mongodb](https://www.npmjs.com/package/mongodb)
+- [mongoose](https://www.npmjs.com/package/mongoose)
+- [multer](https://www.npmjs.com/package/multer)
+- [sharp](https://www.npmjs.com/package/sharp)
+- [validator](https://www.npmjs.com/package/validator)
+- [env-cmd](https://www.npmjs.com/package/env-cmd)
+- [jest](https://www.npmjs.com/package/jest)
+- [nodemon](https://www.npmjs.com/package/nodemon)
+- [supertest](https://www.npmjs.com/package/supertest)
