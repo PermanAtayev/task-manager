@@ -2,12 +2,19 @@
 The task-manager api is deployed at https://perman-task-manager.herokuapp.com/
 
 ## Build
-First of all, initialise the npm and install all of the api's dependencies.
-Then, to build the application on your machine you can either use a developer mode:
+Once you've installed the npm, initialise the npm
+```
+npm init
+```
+and install all of the api's dependencies
+```
+npm install
+```
+Then, to build the application on your machine you can either use a developer mode
 ```
 npm run dev
 ```
-or a usual mode:
+or a usual mode
 ```
 npm start
 ```
@@ -97,8 +104,8 @@ DELETE /tasks/:id
 ```
 where :id is an id of the task
 
-## Task related requests
-To test the api enter this command:
+## Test
+To test the api
 ```
 npm test
 ```
